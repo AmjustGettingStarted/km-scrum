@@ -71,6 +71,7 @@ model User {
   submitted_requests   Request[]           @relation("RequestSubmitter")
   reviewed_requests    Request[]           @relation("RequestReviewer")
   request_actions      RequestHistory[]
+  activity_logs        ActivityLog[]
 
   @@map("users")
 }
@@ -110,6 +111,7 @@ model Task {
 
   status_history TaskStatusHistory[]
   attachments    Attachment[]
+  activity_logs  ActivityLog[]
 
   @@index([assigned_to_id, scheduled_date])
   @@index([scheduled_date, status])
@@ -170,6 +172,7 @@ model Request {
   updated_at       DateTime        @updatedAt
 
   history          RequestHistory[]
+  activity_logs    ActivityLog[]
 
   @@index([user_id, category])
   @@index([category, status])
@@ -191,4 +194,28 @@ model RequestHistory {
 
   @@index([request_id, created_at(sort: Desc)])
   @@map("request_history")
+}
+
+model ActivityLog {
+  id             String   @id @default(uuid())
+  user_id        String
+  user           User     @relation(fields: [user_id], references: [id])
+  activity_type  String
+  task_id        String?
+  task           Task?    @relation(fields: [task_id], references: [id], onDelete: SetNull)
+  request_id     String?
+  request        Request? @relation(fields: [request_id], references: [id], onDelete: SetNull)
+  description    String   @db.Text
+  previous_value String?  @db.Text
+  new_value      String?  @db.Text
+  reason         String?  @db.Text
+  ip_address     String?
+  created_at     DateTime @default(now())
+
+  @@index([created_at(sort: Desc)])
+  @@index([user_id, created_at(sort: Desc)])
+  @@index([activity_type, created_at(sort: Desc)])
+  @@index([task_id])
+  @@index([request_id])
+  @@map("activity_logs")
 }

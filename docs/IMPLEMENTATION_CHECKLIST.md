@@ -80,10 +80,10 @@ This checklist tracks the implementation progress across all 13 phases. Every st
 ---
 
 ## Phase 9: Immutable Centralized Activity Logging & Audit Trail
-- [ ] **STEP-040**: Define `ActivityLog` Prisma model and indexing strategy.
-- [ ] **STEP-041**: Implement centralized Activity Service (`services/activity.service.ts`) with transactional helpers.
-- [ ] **STEP-042**: Instrument all system mutations (tasks, statuses, users, requests, files) with audit logging.
-- [ ] **STEP-043**: Build Dedicated Activity Logs UI (`app/(dashboard)/activity-logs/page.tsx`) with multi-factor filters (user, date, type, task) and pagination.
+- [x] **STEP-040**: Define `ActivityLog` Prisma model and indexing strategy.
+- [x] **STEP-041**: Implement centralized Activity Service (`services/activity.service.ts`) with transactional helpers.
+- [x] **STEP-042**: Instrument all system mutations (tasks, statuses, users, requests, files) with audit logging.
+- [x] **STEP-043**: Build Dedicated Activity Logs UI (`app/(dashboard)/activity-logs/page.tsx`) with multi-factor filters (user, date, type, task) and pagination.
 
 ---
 

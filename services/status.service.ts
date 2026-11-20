@@ -41,7 +41,7 @@ export async function transitionTaskStatusAction(input: TransitionStatusInput) {
     }
   }
 
-  // Atomic database transaction: Update Task + Insert TaskStatusHistory
+  // Atomic database transaction: Update Task + Insert TaskStatusHistory + Insert ActivityLog
   await prisma.$transaction(async (tx) => {
     await tx.task.update({
       where: { id: taskId },
@@ -54,6 +54,18 @@ export async function transitionTaskStatusAction(input: TransitionStatusInput) {
         previous_status: task.status,
         new_status: newStatus,
         changed_by_id: session.user.id,
+        reason: reason,
+      },
+    });
+
+    await tx.activityLog.create({
+      data: {
+        user_id: session.user.id,
+        activity_type: "TASK_STATUS_CHANGED",
+        task_id: taskId,
+        description: `Changed status of ${task.task_code} from ${task.status.replace("_", " ")} to ${newStatus.replace("_", " ")}`,
+        previous_value: task.status,
+        new_value: newStatus,
         reason: reason,
       },
     });
