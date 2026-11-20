@@ -71,11 +71,11 @@ This checklist tracks the implementation progress across all 13 phases. Every st
 ---
 
 ## Phase 8: Requests, Complaints & Leave Management
-- [ ] **STEP-035**: Define `Request` and `RequestHistory` Prisma models and run migration.
-- [ ] **STEP-036**: Build Leave Application form for Developers and Approval/Rejection interface for SM/Manager.
-- [ ] **STEP-037**: Build Confidential Complaint Submission & Review system with strict developer isolation.
-- [ ] **STEP-038**: Build General Issue / Ticket tracking workflow.
-- [ ] **STEP-039**: Integrate approved leaves into Team Daily Planning and Monthly Calendar views.
+- [x] **STEP-035**: Define `Request` and `RequestHistory` Prisma models and run migration.
+- [x] **STEP-036**: Build Leave Application form for Developers and Approval/Rejection interface for SM/Manager.
+- [x] **STEP-037**: Build Confidential Complaint Submission & Review system with strict developer isolation.
+- [x] **STEP-038**: Build General Issue / Ticket tracking workflow.
+- [x] **STEP-039**: Integrate approved leaves into Team Daily Planning and Monthly Calendar views.
 
 ---
 

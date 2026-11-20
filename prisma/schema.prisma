@@ -29,6 +29,28 @@ enum TaskStatus {
   COMPLETED
 }
 
+enum RequestCategory {
+  LEAVE
+  COMPLAINT
+  GENERAL
+}
+
+enum LeaveType {
+  SICK
+  CASUAL
+  ANNUAL
+  UNPAID
+  OTHER
+}
+
+enum RequestStatus {
+  PENDING
+  APPROVED
+  REJECTED
+  RESOLVED
+  CLOSED
+}
+
 model User {
   id                   String     @id @default(uuid())
   username             String     @unique
@@ -46,6 +68,9 @@ model User {
   created_tasks        Task[]              @relation("TaskCreator")
   status_changes       TaskStatusHistory[]
   uploaded_files       Attachment[]
+  submitted_requests   Request[]           @relation("RequestSubmitter")
+  reviewed_requests    Request[]           @relation("RequestReviewer")
+  request_actions      RequestHistory[]
 
   @@map("users")
 }
@@ -123,4 +148,47 @@ model Attachment {
 
   @@index([task_id])
   @@map("attachments")
+}
+
+model Request {
+  id               String          @id @default(uuid())
+  request_code     String          @unique
+  user_id          String
+  user             User            @relation("RequestSubmitter", fields: [user_id], references: [id])
+  category         RequestCategory
+  subject          String
+  description      String          @db.Text
+  leave_type       LeaveType?
+  start_date       DateTime?       @db.Date
+  end_date         DateTime?       @db.Date
+  status           RequestStatus   @default(PENDING)
+  reviewed_by_id   String?
+  reviewed_by      User?           @relation("RequestReviewer", fields: [reviewed_by_id], references: [id])
+  reviewer_remarks String?         @db.Text
+  reviewed_at      DateTime?
+  created_at       DateTime        @default(now())
+  updated_at       DateTime        @updatedAt
+
+  history          RequestHistory[]
+
+  @@index([user_id, category])
+  @@index([category, status])
+  @@index([category, status, start_date, end_date])
+  @@map("requests")
+}
+
+model RequestHistory {
+  id              String   @id @default(uuid())
+  request_id      String
+  request         Request  @relation(fields: [request_id], references: [id], onDelete: Cascade)
+  action          String
+  previous_status String?
+  new_status      String?
+  changed_by_id   String
+  changed_by      User     @relation(fields: [changed_by_id], references: [id])
+  remarks         String?  @db.Text
+  created_at      DateTime @default(now())
+
+  @@index([request_id, created_at(sort: Desc)])
+  @@map("request_history")
 }

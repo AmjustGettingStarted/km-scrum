@@ -75,7 +75,7 @@ export async function getDailyPlanningDataAction(dateStr?: string) {
   }
 
   // If SCRUM_MASTER or MANAGER: return team-wide breakdown by developer
-  const [activeDevelopers, scheduledTasks] = await Promise.all([
+  const [activeDevelopers, scheduledTasks, approvedLeaves] = await Promise.all([
     prisma.user.findMany({
       where: { role: "DEVELOPER", is_active: true },
       select: { id: true, username: true, full_name: true },
@@ -91,10 +91,23 @@ export async function getDailyPlanningDataAction(dateStr?: string) {
       },
       orderBy: { priority: "asc" },
     }),
+    prisma.request.findMany({
+      where: {
+        category: "LEAVE",
+        status: "APPROVED",
+        start_date: { lte: targetDate },
+        end_date: { gte: targetDate },
+      },
+      select: {
+        user_id: true,
+        leave_type: true,
+      },
+    }),
   ]);
 
   const workloadByDeveloper: DeveloperWorkloadItem[] = activeDevelopers.map((dev) => {
     const devTasks = scheduledTasks.filter((t) => t.assigned_to_id === dev.id);
+    const leave = approvedLeaves.find((l) => l.user_id === dev.id);
 
     const devTasksWithOverdue = devTasks.map((t) => ({
       id: t.id,
@@ -124,7 +137,8 @@ export async function getDailyPlanningDataAction(dateStr?: string) {
       testingTasks: testing,
       isOverloaded: total >= 5,
       hasNoTasks: total === 0,
-      isOnLeave: false, // will connect with Request model in Phase 8
+      isOnLeave: Boolean(leave),
+      leaveType: leave?.leave_type ?? null,
     };
   });
 
