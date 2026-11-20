@@ -55,10 +55,10 @@ This checklist tracks the implementation progress across all 13 phases. Every st
 ---
 
 ## Phase 6: Daily & Monthly Planning Engine
-- [ ] **STEP-027**: Build Developer Daily Tasks View (`app/(dashboard)/planning/daily/page.tsx`) with scheduled date switcher.
-- [ ] **STEP-028**: Build Scrum Master & Manager Team Daily Breakdown with developer workload distribution and unassigned developer warnings.
-- [ ] **STEP-029**: Build Monthly Planning Calendar (`app/(dashboard)/planning/monthly/page.tsx`) showing task counts per day per developer.
-- [ ] **STEP-030**: Implement overdue task detection and visual alert badges.
+- [x] **STEP-027**: Build Developer Daily Tasks View (`app/(dashboard)/planning/daily/page.tsx`) with scheduled date switcher.
+- [x] **STEP-028**: Build Scrum Master & Manager Team Daily Breakdown with developer workload distribution and unassigned developer warnings.
+- [x] **STEP-029**: Build Monthly Planning Calendar (`app/(dashboard)/planning/monthly/page.tsx`) showing task counts per day per developer.
+- [x] **STEP-030**: Implement overdue task detection and visual alert badges.
 
 ---
 
