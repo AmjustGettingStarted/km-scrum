@@ -30,19 +30,19 @@ This checklist tracks the implementation progress across all 13 phases. Every st
 ---
 
 ## Phase 3: Task Management Core (CRUD & Data Access)
-- [ ] **STEP-014**: Define Task Prisma schema with PostgreSQL sequence for human-readable task codes (`KM-101`) and run migration.
-- [ ] **STEP-015**: Create Task Service (`services/task.service.ts`) with strict RBAC queries.
-- [ ] **STEP-016**: Build Task Creation modal and Server Action with full validation.
-- [ ] **STEP-017**: Build Task List view with role-scoped filtering (assignee, priority, status, date).
-- [ ] **STEP-018**: Build Task Detail view (`app/(dashboard)/tasks/[id]/page.tsx`) with editable fields for SM/Manager and read-only view for Dev.
+- [x] **STEP-014**: Define Task Prisma schema with PostgreSQL sequence for human-readable task codes (`KM-101`) and run migration.
+- [x] **STEP-015**: Create Task Service (`services/task.service.ts`) with strict RBAC queries.
+- [x] **STEP-016**: Build Task Creation modal and Server Action with full validation.
+- [x] **STEP-017**: Build Task List view with role-scoped filtering (assignee, priority, status, date).
+- [x] **STEP-018**: Build Task Detail view (`app/(dashboard)/tasks/[id]/page.tsx`) with editable fields for SM/Manager and read-only view for Dev.
 
 ---
 
 ## Phase 4: Task Status Lifecycle & Mandatory History
-- [ ] **STEP-019**: Define `TaskStatusHistory` Prisma model and run migration.
-- [ ] **STEP-020**: Implement Status Transition Service (`services/status.service.ts`) enforcing transition rules and atomic logging.
-- [ ] **STEP-021**: Build Mandatory Status Change Reason Dialog (`components/tasks/StatusChangeModal.tsx`).
-- [ ] **STEP-022**: Render Task Status History timeline inside Task Detail view with author, timestamps, and explanations.
+- [x] **STEP-019**: Define `TaskStatusHistory` Prisma model and run migration.
+- [x] **STEP-020**: Implement Status Transition Service (`services/status.service.ts`) enforcing transition rules and atomic logging.
+- [x] **STEP-021**: Build Mandatory Status Change Reason Dialog (`components/tasks/StatusChangeModal.tsx`).
+- [x] **STEP-022**: Render Task Status History timeline inside Task Detail view with author, timestamps, and explanations.
 
 ---
 

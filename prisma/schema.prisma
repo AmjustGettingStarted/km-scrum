@@ -13,6 +13,22 @@ enum UserRole {
   DEVELOPER
 }
 
+enum TaskPriority {
+  CRITICAL
+  HIGH
+  MEDIUM
+  LOW
+}
+
+enum TaskStatus {
+  TO_DO
+  IN_PROGRESS
+  PENDING
+  TESTING
+  RELEASED
+  COMPLETED
+}
+
 model User {
   id                   String     @id @default(uuid())
   username             String     @unique
@@ -26,6 +42,9 @@ model User {
   updated_at           DateTime   @updatedAt
 
   sessions             Session[]
+  assigned_tasks       Task[]     @relation("TaskAssignee")
+  created_tasks        Task[]     @relation("TaskCreator")
+  status_changes       TaskStatusHistory[]
 
   @@map("users")
 }
@@ -43,4 +62,47 @@ model Session {
   @@index([user_id])
   @@index([expires_at])
   @@map("sessions")
+}
+
+model Task {
+  id             String          @id @default(uuid())
+  task_code      String          @unique
+  title          String
+  description    String          @db.Text
+  assigned_to_id String?
+  assigned_to    User?           @relation("TaskAssignee", fields: [assigned_to_id], references: [id], onDelete: SetNull)
+  created_by_id  String
+  created_by     User            @relation("TaskCreator", fields: [created_by_id], references: [id])
+  priority       TaskPriority    @default(MEDIUM)
+  status         TaskStatus      @default(TO_DO)
+  scheduled_date DateTime        @db.Date
+  due_date       DateTime?
+  order_index    Float           @default(1000.0)
+  is_archived    Boolean         @default(false)
+  created_at     DateTime        @default(now())
+  updated_at     DateTime        @updatedAt
+
+  status_history TaskStatusHistory[]
+
+  @@index([assigned_to_id, scheduled_date])
+  @@index([scheduled_date, status])
+  @@index([status, order_index])
+  @@index([is_archived])
+  @@map("tasks")
+}
+
+model TaskStatusHistory {
+  id              String      @id @default(uuid())
+  task_id         String
+  task            Task        @relation(fields: [task_id], references: [id], onDelete: Cascade)
+  previous_status TaskStatus
+  new_status      TaskStatus
+  changed_by_id   String
+  changed_by      User        @relation(fields: [changed_by_id], references: [id])
+  reason          String      @db.Text
+  created_at      DateTime    @default(now())
+
+  @@index([task_id, created_at(sort: Desc)])
+  @@index([changed_by_id])
+  @@map("task_status_history")
 }
