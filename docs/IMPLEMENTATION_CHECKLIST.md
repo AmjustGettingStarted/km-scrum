@@ -88,10 +88,10 @@ This checklist tracks the implementation progress across all 13 phases. Every st
 ---
 
 ## Phase 10: Role-Specific Dashboards & Executive Analytics
-- [ ] **STEP-044**: Build Developer Dashboard (`app/(dashboard)/developer/page.tsx`) focusing on today's assignments and personal status.
-- [ ] **STEP-045**: Build Scrum Master Dashboard (`app/(dashboard)/scrum-master/page.tsx`) focusing on team throughput, blocked work, and QA queue.
-- [ ] **STEP-046**: Build Manager Dashboard (`app/(dashboard)/manager/page.tsx`) focusing on executive stats, workload, and team capacity.
-- [ ] **STEP-047**: Integrate Recharts visualizations (Task Status Breakdown, Priority Distribution, Weekly Velocity).
+- [x] **STEP-044**: Build Developer Dashboard (`app/(dashboard)/developer/page.tsx`) focusing on today's assignments and personal status.
+- [x] **STEP-045**: Build Scrum Master Dashboard (`app/(dashboard)/scrum-master/page.tsx`) focusing on team throughput, blocked work, and QA queue.
+- [x] **STEP-046**: Build Manager Dashboard (`app/(dashboard)/manager/page.tsx`) focusing on executive stats, workload, and team capacity.
+- [x] **STEP-047**: Integrate Recharts visualizations (Task Status Breakdown, Priority Distribution, Weekly Velocity).
 
 ---
 
