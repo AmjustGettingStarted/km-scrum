@@ -72,6 +72,7 @@ model User {
   reviewed_requests    Request[]           @relation("RequestReviewer")
   request_actions      RequestHistory[]
   activity_logs        ActivityLog[]
+  notifications        Notification[]
 
   @@map("users")
 }
@@ -218,4 +219,19 @@ model ActivityLog {
   @@index([task_id])
   @@index([request_id])
   @@map("activity_logs")
+}
+
+model Notification {
+  id         String   @id @default(uuid())
+  user_id    String
+  user       User     @relation(fields: [user_id], references: [id], onDelete: Cascade)
+  title      String
+  message    String   @db.Text
+  link       String?
+  is_read    Boolean  @default(false)
+  type       String
+  created_at DateTime @default(now())
+
+  @@index([user_id, is_read, created_at(sort: Desc)])
+  @@map("notifications")
 }

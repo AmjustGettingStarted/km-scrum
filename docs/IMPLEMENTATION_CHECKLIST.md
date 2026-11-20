@@ -96,10 +96,10 @@ This checklist tracks the implementation progress across all 13 phases. Every st
 ---
 
 ## Phase 11: In-App Notifications & UI Polish
-- [ ] **STEP-048**: Define `Notification` Prisma model and notification creation service.
-- [ ] **STEP-049**: Build Notification Bell dropdown component with unread badges and mark-as-read actions.
-- [ ] **STEP-050**: Add global task search bar with keyboard shortcut (`Cmd+K` / `Ctrl+K`).
-- [ ] **STEP-051**: Implement responsive layout polish, empty states, and skeleton loading screens across all pages.
+- [x] **STEP-048**: Define `Notification` Prisma model and notification creation service.
+- [x] **STEP-049**: Build Notification Bell dropdown component with unread badges and mark-as-read actions.
+- [x] **STEP-050**: Add global task search bar with keyboard shortcut (`Cmd+K` / `Ctrl+K`).
+- [x] **STEP-051**: Implement responsive layout polish, empty states, and skeleton loading screens across all pages.
 
 ---
 
