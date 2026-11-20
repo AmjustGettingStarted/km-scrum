@@ -1,7 +1,5 @@
-import { PrismaClient } from "@prisma/client";
+import { prisma } from "../lib/prisma";
 import { hash } from "@node-rs/argon2";
-
-const prisma = new PrismaClient();
 
 const ARGON2_OPTIONS = {
   memoryCost: 65536,
