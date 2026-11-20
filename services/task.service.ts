@@ -198,3 +198,16 @@ export async function archiveTaskAction(taskId: string) {
   revalidatePath("/tasks");
   return { success: true };
 }
+
+export async function reorderTaskAction(taskId: string, newOrderIndex: number) {
+  const session = await getSessionFromCookies();
+  if (!session) throw new Error("Not authenticated");
+
+  await prisma.task.update({
+    where: { id: taskId },
+    data: { order_index: newOrderIndex },
+  });
+
+  revalidatePath("/tasks");
+  return { success: true };
+}

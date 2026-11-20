@@ -47,10 +47,10 @@ This checklist tracks the implementation progress across all 13 phases. Every st
 ---
 
 ## Phase 5: Interactive Task Board & Drag-and-Drop
-- [ ] **STEP-023**: Install and configure `@dnd-kit/core` and `@dnd-kit/sortable` for the 6 status columns.
-- [ ] **STEP-024**: Build draggable Task Card component (`components/tasks/TaskCard.tsx`) with priority indicators and pill styling.
-- [ ] **STEP-025**: Implement Drag-and-Drop Status Change Interception with optimistic UI and reason dialog rollback.
-- [ ] **STEP-026**: Implement column reordering persistence using fractional `order_index`.
+- [x] **STEP-023**: Install and configure `@dnd-kit/core` and `@dnd-kit/sortable` for the 6 status columns.
+- [x] **STEP-024**: Build draggable Task Card component (`components/tasks/TaskCard.tsx`) with priority indicators and pill styling.
+- [x] **STEP-025**: Implement Drag-and-Drop Status Change Interception with optimistic UI and reason dialog rollback.
+- [x] **STEP-026**: Implement column reordering persistence using fractional `order_index`.
 
 ---
 
