@@ -21,11 +21,11 @@ This checklist tracks the implementation progress across all 13 phases. Every st
 
 ## Phase 2: Custom Authentication & User Administration
 - [x] **STEP-008**: Create User and Session Prisma models and run initial database migration.
-- [ ] **STEP-009**: Implement Argon2id password hashing utilities (`lib/auth/password.ts`).
-- [ ] **STEP-010**: Build database-backed session engine and cookie helpers (`lib/auth/session.ts`).
-- [ ] **STEP-011**: Build Login page UI and authenticate Server Action (`app/(auth)/login/page.tsx`).
-- [ ] **STEP-012**: Implement Next.js edge middleware for session authentication and role-based route protection (`middleware.ts`).
-- [ ] **STEP-013**: Implement Manager User Management (create account, list users, reset password, force password change) and initial seed script (`prisma/seed.ts`).
+- [x] **STEP-009**: Implement Argon2id password hashing utilities (`lib/auth/password.ts`).
+- [x] **STEP-010**: Build database-backed session engine and cookie helpers (`lib/auth/session.ts`).
+- [x] **STEP-011**: Build Login page UI and authenticate Server Action (`app/(auth)/login/page.tsx`).
+- [x] **STEP-012**: Implement Next.js edge middleware for session authentication and role-based route protection (`middleware.ts`).
+- [x] **STEP-013**: Implement Manager User Management (create account, list users, reset password, force password change) and initial seed script (`prisma/seed.ts`).
 
 ---
 
