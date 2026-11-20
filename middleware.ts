@@ -11,8 +11,15 @@ export function middleware(request: NextRequest) {
 
   const isPublicRoute = PUBLIC_ROUTES.some((route) => pathname.startsWith(route));
 
+  if (pathname === "/") {
+    if (sessionToken) {
+      return NextResponse.redirect(new URL("/dashboard", request.url));
+    }
+    return NextResponse.redirect(new URL("/login", request.url));
+  }
+
   // If user is accessing protected routes without session cookie, redirect to login
-  if (!sessionToken && !isPublicRoute && pathname !== "/") {
+  if (!sessionToken && !isPublicRoute) {
     const loginUrl = new URL("/login", request.url);
     loginUrl.searchParams.set("from", pathname);
     return NextResponse.redirect(loginUrl);
