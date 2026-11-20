@@ -12,15 +12,15 @@ This checklist tracks the implementation progress across all 13 phases. Every st
 ---
 
 ## Phase 1: Foundation, Design Tokens & Database Engine
-- [ ] **STEP-004**: Install and initialize Prisma ORM with PostgreSQL/Neon configuration.
-- [ ] **STEP-005**: Create database client singleton (`lib/prisma.ts`) and test connection route (`app/api/health/route.ts`).
-- [ ] **STEP-006**: Set up baseline UI component foundation (shadcn/ui primitives adapted for Tailwind v4).
-- [ ] **STEP-007**: Build authenticated application shell layout (`components/layout/AppSidebar.tsx`, `Header.tsx`, `Breadcrumbs.tsx`).
+- [x] **STEP-004**: Install and initialize Prisma ORM with PostgreSQL/Neon configuration.
+- [x] **STEP-005**: Create database client singleton (`lib/prisma.ts`) and test connection route (`app/api/health/route.ts`).
+- [x] **STEP-006**: Set up baseline UI component foundation (shadcn/ui primitives adapted for Tailwind v4).
+- [x] **STEP-007**: Build authenticated application shell layout (`components/layout/AppSidebar.tsx`, `Header.tsx`, `Breadcrumbs.tsx`).
 
 ---
 
 ## Phase 2: Custom Authentication & User Administration
-- [ ] **STEP-008**: Create User and Session Prisma models and run initial database migration.
+- [x] **STEP-008**: Create User and Session Prisma models and run initial database migration.
 - [ ] **STEP-009**: Implement Argon2id password hashing utilities (`lib/auth/password.ts`).
 - [ ] **STEP-010**: Build database-backed session engine and cookie helpers (`lib/auth/session.ts`).
 - [ ] **STEP-011**: Build Login page UI and authenticate Server Action (`app/(auth)/login/page.tsx`).

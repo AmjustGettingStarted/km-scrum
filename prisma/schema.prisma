@@ -1,0 +1,46 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum UserRole {
+  MANAGER
+  SCRUM_MASTER
+  DEVELOPER
+}
+
+model User {
+  id                   String     @id @default(uuid())
+  username             String     @unique
+  password_hash        String
+  full_name            String
+  email                String?    @unique
+  role                 UserRole   @default(DEVELOPER)
+  is_active            Boolean    @default(true)
+  must_change_password Boolean    @default(false)
+  created_at           DateTime   @default(now())
+  updated_at           DateTime   @updatedAt
+
+  sessions             Session[]
+
+  @@map("users")
+}
+
+model Session {
+  id         String   @id @default(uuid())
+  token_hash String   @unique
+  user_id    String
+  user       User     @relation(fields: [user_id], references: [id], onDelete: Cascade)
+  expires_at DateTime
+  ip_address String?
+  user_agent String?
+  created_at DateTime @default(now())
+
+  @@index([user_id])
+  @@index([expires_at])
+  @@map("sessions")
+}
