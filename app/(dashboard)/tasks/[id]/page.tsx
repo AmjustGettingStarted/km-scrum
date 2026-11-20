@@ -5,6 +5,7 @@ import { getSessionFromCookies } from "@/lib/auth/session";
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { TaskHistoryTimeline } from "@/components/tasks/TaskHistoryTimeline";
+import { AttachmentUploader } from "@/components/files/AttachmentUploader";
 import { formatDate } from "@/lib/utils";
 import { Calendar, ArrowLeft } from "lucide-react";
 import Link from "next/link";
@@ -79,6 +80,24 @@ async function TaskDetailContent({ params }: { params: Promise<{ id: string }> }
             </CardHeader>
             <CardContent className="pt-4">
               <TaskHistoryTimeline history={task.status_history} />
+            </CardContent>
+          </Card>
+
+          {/* Task Attachments (Images, Videos, APK, Logs) */}
+          <Card>
+            <CardHeader className="pb-3 border-b border-ash/60">
+              <CardTitle className="text-sm font-semibold uppercase tracking-wider text-steel">
+                Task Attachments & Builds
+              </CardTitle>
+            </CardHeader>
+            <CardContent className="pt-4">
+              <AttachmentUploader
+                taskId={task.id}
+                initialAttachments={task.attachments?.map((a: any) => ({
+                  ...a,
+                  file_size: Number(a.file_size),
+                }))}
+              />
             </CardContent>
           </Card>
         </div>

@@ -63,10 +63,10 @@ This checklist tracks the implementation progress across all 13 phases. Every st
 ---
 
 ## Phase 7: Cloudflare R2 Attachments & Secure File Pipeline
-- [ ] **STEP-031**: Define `Attachment` Prisma model and configure Cloudflare R2 S3 Client (`lib/r2.ts`).
-- [ ] **STEP-032**: Implement Presigned Upload URL Route Handler (`/api/files/presign-upload`) with MIME and file size validation (images, videos, APKs).
-- [ ] **STEP-033**: Build Client Attachment Uploader (`components/files/AttachmentUploader.tsx`) with direct R2 upload progress.
-- [ ] **STEP-034**: Build Secure Download Route Handler (`/api/files/download/[id]`) with role verification and presigned GET redirects.
+- [x] **STEP-031**: Define `Attachment` Prisma model and configure Cloudflare R2 S3 Client (`lib/r2.ts`).
+- [x] **STEP-032**: Implement Presigned Upload URL Route Handler (`/api/files/presign-upload`) with MIME and file size validation (images, videos, APKs).
+- [x] **STEP-033**: Build Client Attachment Uploader (`components/files/AttachmentUploader.tsx`) with direct R2 upload progress.
+- [x] **STEP-034**: Build Secure Download Route Handler (`/api/files/download/[id]`) with role verification and presigned GET redirects.
 
 ---
 

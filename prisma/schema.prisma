@@ -42,9 +42,10 @@ model User {
   updated_at           DateTime   @updatedAt
 
   sessions             Session[]
-  assigned_tasks       Task[]     @relation("TaskAssignee")
-  created_tasks        Task[]     @relation("TaskCreator")
+  assigned_tasks       Task[]              @relation("TaskAssignee")
+  created_tasks        Task[]              @relation("TaskCreator")
   status_changes       TaskStatusHistory[]
+  uploaded_files       Attachment[]
 
   @@map("users")
 }
@@ -83,6 +84,7 @@ model Task {
   updated_at     DateTime        @updatedAt
 
   status_history TaskStatusHistory[]
+  attachments    Attachment[]
 
   @@index([assigned_to_id, scheduled_date])
   @@index([scheduled_date, status])
@@ -105,4 +107,20 @@ model TaskStatusHistory {
   @@index([task_id, created_at(sort: Desc)])
   @@index([changed_by_id])
   @@map("task_status_history")
+}
+
+model Attachment {
+  id             String   @id @default(uuid())
+  task_id        String
+  task           Task     @relation(fields: [task_id], references: [id], onDelete: Cascade)
+  file_name      String
+  file_key       String   @unique
+  file_size      BigInt
+  mime_type      String
+  uploaded_by_id String
+  uploaded_by    User     @relation(fields: [uploaded_by_id], references: [id])
+  created_at     DateTime @default(now())
+
+  @@index([task_id])
+  @@map("attachments")
 }

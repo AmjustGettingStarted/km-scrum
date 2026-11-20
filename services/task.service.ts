@@ -86,6 +86,14 @@ export async function getTaskByIdAction(taskId: string) {
         },
         orderBy: { created_at: "desc" },
       },
+      attachments: {
+        include: {
+          uploaded_by: {
+            select: { id: true, full_name: true },
+          },
+        },
+        orderBy: { created_at: "desc" },
+      },
     },
   });
 
