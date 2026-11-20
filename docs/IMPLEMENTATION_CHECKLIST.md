@@ -104,7 +104,7 @@ This checklist tracks the implementation progress across all 13 phases. Every st
 ---
 
 ## Phase 12: Production Hardening, Verification & Deployment
-- [ ] **STEP-052**: Comprehensive automated and manual RBAC security audit across all routes and Server Actions.
-- [ ] **STEP-053**: Neon PostgreSQL production branch setup, connection pooling test, and database backup verification.
-- [ ] **STEP-054**: Cloudflare R2 production bucket configuration, CORS rules, and lifecycle rules.
-- [ ] **STEP-055**: Vercel deployment configuration, environment variable verification, and end-to-end smoke test.
+- [x] **STEP-052**: Comprehensive automated and manual RBAC security audit across all routes and Server Actions.
+- [x] **STEP-053**: Neon PostgreSQL production branch setup, connection pooling test, and database backup verification.
+- [x] **STEP-054**: Cloudflare R2 production bucket configuration, CORS rules, and lifecycle rules.
+- [x] **STEP-055**: Vercel deployment configuration, environment variable verification, and end-to-end smoke test.
