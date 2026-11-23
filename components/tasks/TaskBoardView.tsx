@@ -26,11 +26,11 @@ import type { TaskPriority, TaskStatus } from "@prisma/client";
 
 const COLUMNS: { key: TaskStatus; label: string; accentColor: string }[] = [
   { key: "TO_DO", label: "To Do", accentColor: "bg-steel" },
+  { key: "COMPLETED", label: "Completed", accentColor: "bg-emerald-600" },
   { key: "IN_PROGRESS", label: "In Progress", accentColor: "bg-electric-blue" },
   { key: "PENDING", label: "Pending", accentColor: "bg-amber-500" },
   { key: "TESTING", label: "Testing", accentColor: "bg-purple-600" },
   { key: "RELEASED", label: "Released", accentColor: "bg-indigo-600" },
-  { key: "COMPLETED", label: "Completed", accentColor: "bg-emerald-600" },
 ];
 
 export interface BoardTask {
