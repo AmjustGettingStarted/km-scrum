@@ -114,10 +114,6 @@ export async function createTaskAction(
   const session = await getSessionFromCookies();
   if (!session) return { success: false, error: "Not authenticated" };
 
-  if (session.user.role === "DEVELOPER") {
-    return { success: false, error: "Only Scrum Masters and Managers can create tasks" };
-  }
-
   const raw = {
     title: formData.get("title"),
     description: formData.get("description"),
@@ -132,6 +128,12 @@ export async function createTaskAction(
     return { success: false, error: parsed.error.issues[0]?.message ?? "Invalid input" };
   }
 
+  let assignedToId = parsed.data.assignedToId || null;
+  if (session.user.role === "DEVELOPER") {
+    // Developers can create their own tasks; force assignment to themselves
+    assignedToId = session.user.id;
+  }
+
   // Count existing tasks to generate sequential code (or timestamp fallback in development)
   const taskCount = await prisma.task.count();
   const taskCode = `KM-${101 + taskCount}`;
@@ -141,7 +143,7 @@ export async function createTaskAction(
       task_code: taskCode,
       title: parsed.data.title,
       description: parsed.data.description,
-      assigned_to_id: parsed.data.assignedToId || null,
+      assigned_to_id: assignedToId,
       created_by_id: session.user.id,
       priority: parsed.data.priority,
       status: "TO_DO",
@@ -165,7 +167,15 @@ export async function updateTaskAction(
   if (!session) throw new Error("Not authenticated");
 
   if (session.user.role === "DEVELOPER") {
-    throw new Error("Only Scrum Masters and Managers can edit task details");
+    const existing = await prisma.task.findUnique({
+      where: { id: taskId },
+      select: { created_by_id: true, assigned_to_id: true },
+    });
+    if (!existing || (existing.created_by_id !== session.user.id && existing.assigned_to_id !== session.user.id)) {
+      throw new Error("Forbidden: You can only edit tasks you created or are assigned to");
+    }
+    // Developers cannot reassign tasks to others
+    delete data.assignedToId;
   }
 
   const updateData: Prisma.TaskUpdateInput = {};

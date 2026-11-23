@@ -10,9 +10,11 @@ import { Plus, KanbanSquare, AlertCircle } from "lucide-react";
 
 interface CreateTaskModalProps {
   developers?: { id: string; full_name: string; username: string }[];
+  userRole?: string;
+  currentUserId?: string;
 }
 
-export function CreateTaskModal({ developers = [] }: CreateTaskModalProps) {
+export function CreateTaskModal({ developers = [], userRole, currentUserId }: CreateTaskModalProps) {
   const [open, setOpen] = useState(false);
   const [state, formAction, isPending] = useActionState(createTaskAction, null);
 
@@ -64,21 +66,29 @@ export function CreateTaskModal({ developers = [] }: CreateTaskModalProps) {
           </div>
 
           <div className="grid grid-cols-2 gap-3">
-            <div className="space-y-1">
-              <label className="text-xs font-medium text-charcoal">Assign Developer</label>
-              <select
-                name="assignedToId"
-                className="flex h-9 w-full rounded-inputs border border-ash bg-canvas-white px-3 py-1.5 text-sm text-charcoal transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-midnight-ink"
-                defaultValue=""
-              >
-                <option value="">Unassigned</option>
-                {developers.map((dev) => (
-                  <option key={dev.id} value={dev.id}>
-                    {dev.full_name} ({dev.username})
-                  </option>
-                ))}
-              </select>
-            </div>
+            {userRole === "DEVELOPER" ? (
+              <div className="space-y-1">
+                <label className="text-xs font-medium text-charcoal">Assign Developer</label>
+                <Input value="Myself (Automatic)" disabled className="bg-paper-mist text-steel" />
+                <input type="hidden" name="assignedToId" value={currentUserId || ""} />
+              </div>
+            ) : (
+              <div className="space-y-1">
+                <label className="text-xs font-medium text-charcoal">Assign Developer</label>
+                <select
+                  name="assignedToId"
+                  className="flex h-9 w-full rounded-inputs border border-ash bg-canvas-white px-3 py-1.5 text-sm text-charcoal transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-midnight-ink"
+                  defaultValue=""
+                >
+                  <option value="">Unassigned</option>
+                  {developers.map((dev) => (
+                    <option key={dev.id} value={dev.id}>
+                      {dev.full_name} ({dev.username})
+                    </option>
+                  ))}
+                </select>
+              </div>
+            )}
 
             <div className="space-y-1">
               <label className="text-xs font-medium text-charcoal">Priority</label>

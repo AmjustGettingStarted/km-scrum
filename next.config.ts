@@ -5,6 +5,7 @@ const nextConfig: NextConfig = {
   experimental: {
     agentFeedback: true,
     serverActions: {
+      bodySizeLimit: "150mb",
       allowedOrigins: [
         "localhost:3000",
         "*.devtunnels.ms",

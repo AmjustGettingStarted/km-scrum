@@ -6,7 +6,7 @@ import { getSessionFromCookies } from "@/lib/auth/session";
 import { prisma } from "@/lib/prisma";
 import crypto from "crypto";
 
-const MAX_FILE_SIZE_BYTES = 50 * 1024 * 1024; // 50MB limit
+const MAX_FILE_SIZE_BYTES = 150 * 1024 * 1024; // 150MB limit
 
 const ALLOWED_MIME_TYPES = new Set([
   // Images
@@ -44,7 +44,7 @@ export async function POST(request: Request) {
 
     if (fileSize > MAX_FILE_SIZE_BYTES) {
       return NextResponse.json(
-        { error: "File exceeds 50MB limit" },
+        { error: "File exceeds 150MB limit" },
         { status: 400 }
       );
     }
