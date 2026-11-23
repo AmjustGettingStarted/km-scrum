@@ -35,10 +35,35 @@ export async function confirmAttachmentAction(input: ConfirmAttachmentInput) {
       mime_type: input.mimeType,
       uploaded_by_id: session.user.id,
     },
+    include: {
+      uploaded_by: {
+        select: { full_name: true },
+      },
+    },
   });
 
+  // Log activity
+  await prisma.activityLog.create({
+    data: {
+      user_id: session.user.id,
+      task_id: input.taskId,
+      activity_type: "TASK_UPDATED",
+      description: `Uploaded attachment "${input.fileName}" (${(input.fileSize / (1024 * 1024)).toFixed(1)} MB)`,
+    },
+  }).catch(() => {});
+
   revalidatePath(`/tasks/${input.taskId}`);
-  return { success: true, attachmentId: attachment.id };
+  return {
+    success: true,
+    attachment: {
+      id: attachment.id,
+      file_name: attachment.file_name,
+      file_size: Number(attachment.file_size),
+      mime_type: attachment.mime_type,
+      created_at: attachment.created_at,
+      uploaded_by: attachment.uploaded_by,
+    },
+  };
 }
 
 export async function getTaskAttachmentsAction(taskId: string) {

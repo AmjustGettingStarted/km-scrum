@@ -80,11 +80,10 @@ export async function POST(request: Request) {
     const cleanFileName = fileName.replace(/[^a-zA-Z0-9._-]/g, "_");
     const fileKey = `tasks/${taskId}/${uniqueSuffix}-${cleanFileName}`;
 
-    // Create Presigned PUT URL valid for 15 minutes
+    // Create Presigned PUT URL valid for 15 minutes without rigid ContentType signature locking
     const putCommand = new PutObjectCommand({
       Bucket: R2_BUCKET_NAME,
       Key: fileKey,
-      ContentType: isApkByName ? "application/vnd.android.package-archive" : fileType,
     });
 
     const uploadUrl = await getSignedUrl(r2, putCommand, { expiresIn: 900 });
