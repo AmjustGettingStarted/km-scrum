@@ -26,11 +26,11 @@ import type { TaskPriority, TaskStatus } from "@prisma/client";
 
 const COLUMNS: { key: TaskStatus; label: string; accentColor: string }[] = [
   { key: "TO_DO", label: "To Do", accentColor: "bg-steel" },
+  { key: "COMPLETED", label: "Completed", accentColor: "bg-emerald-600" },
   { key: "IN_PROGRESS", label: "In Progress", accentColor: "bg-electric-blue" },
   { key: "PENDING", label: "Pending", accentColor: "bg-amber-500" },
   { key: "TESTING", label: "Testing", accentColor: "bg-purple-600" },
   { key: "RELEASED", label: "Released", accentColor: "bg-indigo-600" },
-  { key: "COMPLETED", label: "Completed", accentColor: "bg-emerald-600" },
 ];
 
 export interface BoardTask {
@@ -186,22 +186,29 @@ export function TaskBoardView({ tasks, userRole = "DEVELOPER" }: TaskBoardViewPr
       return;
     }
 
-    // If dropped in the SAME column, handle reordering persistence
+    // If dropped in the SAME column, handle reordering persistence (newest/highest on top)
     const columnTasks = tasks.filter((t) => t.status === sourceTask.status);
     const oldIndex = columnTasks.findIndex((t) => t.id === activeId);
     const newIndex = columnTasks.findIndex((t) => t.id === overId);
 
     if (oldIndex !== -1 && newIndex !== -1 && oldIndex !== newIndex) {
-      // Calculate fractional order index
+      const reordered = [...columnTasks];
+      const [moved] = reordered.splice(oldIndex, 1);
+      reordered.splice(newIndex, 0, moved);
+
       let newOrderIndex = 1000.0;
       if (newIndex === 0) {
-        newOrderIndex = (columnTasks[0].order_index ?? 1000) / 2;
-      } else if (newIndex === columnTasks.length - 1) {
-        newOrderIndex = (columnTasks[columnTasks.length - 1].order_index ?? 1000) + 1000;
+        const nextItem = reordered[1];
+        newOrderIndex = (nextItem?.order_index ?? 1000) + 1000;
+      } else if (newIndex === reordered.length - 1) {
+        const prevItem = reordered[reordered.length - 2];
+        newOrderIndex = Math.max(1, (prevItem?.order_index ?? 1000) / 2);
       } else {
-        const prev = columnTasks[newIndex].order_index ?? 1000;
-        const next = columnTasks[newIndex + 1]?.order_index ?? prev + 1000;
-        newOrderIndex = (prev + next) / 2;
+        const prevItem = reordered[newIndex - 1];
+        const nextItem = reordered[newIndex + 1];
+        const prevVal = prevItem?.order_index ?? 2000;
+        const nextVal = nextItem?.order_index ?? 1000;
+        newOrderIndex = (prevVal + nextVal) / 2;
       }
 
       await reorderTaskAction(activeId, newOrderIndex);

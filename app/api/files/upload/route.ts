@@ -3,6 +3,7 @@ import { PutObjectCommand } from "@aws-sdk/client-s3";
 import { r2, R2_BUCKET_NAME } from "@/lib/r2";
 import { getSessionFromCookies } from "@/lib/auth/session";
 import { prisma } from "@/lib/prisma";
+import { logActivity } from "@/services/activity.service";
 import crypto from "crypto";
 
 const MAX_FILE_SIZE_BYTES = 150 * 1024 * 1024; // 150MB limit
@@ -86,6 +87,14 @@ export async function POST(request: Request) {
           select: { full_name: true },
         },
       },
+    });
+
+    await logActivity(prisma, {
+      userId: session.user.id,
+      activityType: "ATTACHMENT_UPLOADED",
+      taskId: taskId,
+      description: `Uploaded attachment "${fileName}" (${(file.size / (1024 * 1024)).toFixed(1)} MB)`,
+      newValue: fileKey,
     });
 
     return NextResponse.json({
