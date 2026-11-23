@@ -3,6 +3,7 @@
 import { revalidatePath } from "next/cache";
 import { prisma } from "@/lib/prisma";
 import { getSessionFromCookies } from "@/lib/auth/session";
+import { logActivity } from "@/services/activity.service";
 import { createTaskSchema, type CreateTaskInput } from "@/lib/validations/task";
 import type { TaskPriority, TaskStatus, Prisma } from "@prisma/client";
 
@@ -138,7 +139,7 @@ export async function createTaskAction(
   const taskCount = await prisma.task.count();
   const taskCode = `KM-${101 + taskCount}`;
 
-  await prisma.task.create({
+  const createdTask = await prisma.task.create({
     data: {
       task_code: taskCode,
       title: parsed.data.title,
@@ -151,6 +152,21 @@ export async function createTaskAction(
       due_date: parsed.data.dueDate ? new Date(parsed.data.dueDate) : null,
       order_index: (taskCount + 1) * 1000.0,
     },
+    include: {
+      assigned_to: { select: { full_name: true } },
+    },
+  });
+
+  await logActivity(prisma, {
+    userId: session.user.id,
+    activityType: "TASK_CREATED",
+    taskId: createdTask.id,
+    description: `Created task ${taskCode}: "${parsed.data.title}"`,
+    newValue: JSON.stringify({
+      priority: parsed.data.priority,
+      assignedTo: createdTask.assigned_to?.full_name || "Unassigned",
+      scheduledDate: parsed.data.scheduledDate,
+    }),
   });
 
   revalidatePath("/tasks");
@@ -166,12 +182,17 @@ export async function updateTaskAction(
   const session = await getSessionFromCookies();
   if (!session) throw new Error("Not authenticated");
 
+  const existing = await prisma.task.findUnique({
+    where: { id: taskId },
+    include: {
+      assigned_to: { select: { id: true, full_name: true } },
+    },
+  });
+
+  if (!existing) throw new Error("Task not found");
+
   if (session.user.role === "DEVELOPER") {
-    const existing = await prisma.task.findUnique({
-      where: { id: taskId },
-      select: { created_by_id: true, assigned_to_id: true },
-    });
-    if (!existing || (existing.created_by_id !== session.user.id && existing.assigned_to_id !== session.user.id)) {
+    if (existing.created_by_id !== session.user.id && existing.assigned_to_id !== session.user.id) {
       throw new Error("Forbidden: You can only edit tasks you created or are assigned to");
     }
     // Developers cannot reassign tasks to others
@@ -192,10 +213,47 @@ export async function updateTaskAction(
       : { disconnect: true };
   }
 
-  await prisma.task.update({
+  const updatedTask = await prisma.task.update({
     where: { id: taskId },
     data: updateData,
+    include: {
+      assigned_to: { select: { id: true, full_name: true } },
+    },
   });
+
+  // Log granular changes
+  if (data.priority && data.priority !== existing.priority) {
+    await logActivity(prisma, {
+      userId: session.user.id,
+      activityType: "TASK_PRIORITY_CHANGED",
+      taskId,
+      description: `Changed priority of ${existing.task_code} from ${existing.priority} to ${data.priority}`,
+      previousValue: existing.priority,
+      newValue: data.priority,
+    });
+  }
+
+  if (data.assignedToId !== undefined && data.assignedToId !== existing.assigned_to_id) {
+    const prevName = existing.assigned_to?.full_name || "Unassigned";
+    const newName = updatedTask.assigned_to?.full_name || "Unassigned";
+    await logActivity(prisma, {
+      userId: session.user.id,
+      activityType: "TASK_REASSIGNED",
+      taskId,
+      description: `Reassigned ${existing.task_code} from ${prevName} to ${newName}`,
+      previousValue: prevName,
+      newValue: newName,
+    });
+  }
+
+  if (data.title || data.description || data.scheduledDate) {
+    await logActivity(prisma, {
+      userId: session.user.id,
+      activityType: "TASK_UPDATED",
+      taskId,
+      description: `Updated details for ${existing.task_code}: "${data.title || existing.title}"`,
+    });
+  }
 
   revalidatePath(`/tasks/${taskId}`);
   revalidatePath("/tasks");
@@ -208,9 +266,17 @@ export async function archiveTaskAction(taskId: string) {
     throw new Error("Unauthorized: Only Managers can archive tasks");
   }
 
+  const task = await prisma.task.findUnique({ where: { id: taskId }, select: { task_code: true, title: true } });
   await prisma.task.update({
     where: { id: taskId },
     data: { is_archived: true },
+  });
+
+  await logActivity(prisma, {
+    userId: session.user.id,
+    activityType: "TASK_ARCHIVED",
+    taskId,
+    description: `Archived task ${task?.task_code || taskId}: "${task?.title || ""}"`,
   });
 
   revalidatePath("/tasks");

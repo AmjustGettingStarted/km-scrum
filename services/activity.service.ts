@@ -20,19 +20,24 @@ export async function logActivity(
   tx: Prisma.TransactionClient | typeof prisma,
   params: LogActivityParams
 ) {
-  return tx.activityLog.create({
-    data: {
-      user_id: params.userId,
-      activity_type: params.activityType,
-      task_id: params.taskId ?? null,
-      request_id: params.requestId ?? null,
-      description: params.description,
-      previous_value: params.previousValue ?? null,
-      new_value: params.newValue ?? null,
-      reason: params.reason ?? null,
-      ip_address: params.ipAddress ?? null,
-    },
-  });
+  try {
+    return await tx.activityLog.create({
+      data: {
+        user_id: params.userId,
+        activity_type: params.activityType,
+        task_id: params.taskId ?? null,
+        request_id: params.requestId ?? null,
+        description: params.description,
+        previous_value: params.previousValue ?? null,
+        new_value: params.newValue ?? null,
+        reason: params.reason ?? null,
+        ip_address: params.ipAddress ?? null,
+      },
+    });
+  } catch (err) {
+    console.error("Failed to write activity log:", err);
+    return null;
+  }
 }
 
 export interface ActivityFilterOptions {
@@ -40,6 +45,7 @@ export interface ActivityFilterOptions {
   activityType?: string;
   dateStr?: string;
   search?: string;
+  limit?: number;
 }
 
 export async function getActivityLogsAction(filters?: ActivityFilterOptions) {
@@ -51,30 +57,59 @@ export async function getActivityLogsAction(filters?: ActivityFilterOptions) {
   // If DEVELOPER: restricted strictly to own activity
   if (session.user.role === "DEVELOPER") {
     whereClause.user_id = session.user.id;
-  } else if (filters?.userId) {
+  } else if (filters?.userId && filters.userId !== "ALL") {
     whereClause.user_id = filters.userId;
   }
 
-  if (filters?.activityType) {
-    whereClause.activity_type = filters.activityType;
+  if (filters?.activityType && filters.activityType !== "ALL") {
+    // Support category grouping or exact type
+    if (filters.activityType === "TASKS") {
+      whereClause.activity_type = {
+        in: ["TASK_CREATED", "TASK_STATUS_CHANGED", "TASK_UPDATED", "TASK_REASSIGNED", "TASK_PRIORITY_CHANGED", "TASK_ARCHIVED"],
+      };
+    } else if (filters.activityType === "FILES") {
+      whereClause.activity_type = { in: ["ATTACHMENT_UPLOADED", "TASK_UPDATED"] };
+    } else if (filters.activityType === "REQUESTS") {
+      whereClause.activity_type = {
+        in: ["LEAVE_REQUESTED", "COMPLAINT_FILED", "TICKET_RAISED", "REQUEST_REVIEWED"],
+      };
+    } else if (filters.activityType === "USERS") {
+      whereClause.activity_type = {
+        in: ["USER_CREATED", "USER_STATUS_CHANGED", "PASSWORD_RESET"],
+      };
+    } else if (filters.activityType === "AUTH") {
+      whereClause.activity_type = {
+        in: ["USER_LOGGED_IN", "USER_LOGGED_OUT", "PASSWORD_CHANGED"],
+      };
+    } else {
+      whereClause.activity_type = filters.activityType;
+    }
   }
 
   if (filters?.dateStr) {
     const start = new Date(filters.dateStr);
+    start.setHours(0, 0, 0, 0);
     const end = new Date(filters.dateStr);
-    end.setDate(end.getDate() + 1);
+    end.setHours(23, 59, 59, 999);
 
     whereClause.created_at = {
       gte: start,
-      lt: end,
+      lte: end,
     };
   }
 
-  if (filters?.search) {
-    whereClause.description = {
-      contains: filters.search,
-      mode: "insensitive",
-    };
+  if (filters?.search && filters.search.trim()) {
+    const term = filters.search.trim();
+    whereClause.OR = [
+      { description: { contains: term, mode: "insensitive" } },
+      { reason: { contains: term, mode: "insensitive" } },
+      { task: { task_code: { contains: term, mode: "insensitive" } } },
+      { task: { title: { contains: term, mode: "insensitive" } } },
+      { request: { request_code: { contains: term, mode: "insensitive" } } },
+      { request: { subject: { contains: term, mode: "insensitive" } } },
+      { user: { full_name: { contains: term, mode: "insensitive" } } },
+      { user: { username: { contains: term, mode: "insensitive" } } },
+    ];
   }
 
   return prisma.activityLog.findMany({
@@ -87,10 +122,10 @@ export async function getActivityLogsAction(filters?: ActivityFilterOptions) {
         select: { id: true, task_code: true, title: true },
       },
       request: {
-        select: { id: true, request_code: true, subject: true },
+        select: { id: true, request_code: true, subject: true, category: true },
       },
     },
     orderBy: { created_at: "desc" },
-    take: 100, // pagination limit
+    take: filters?.limit || 200,
   });
 }

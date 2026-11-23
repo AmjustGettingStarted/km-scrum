@@ -3,6 +3,7 @@
 import { revalidatePath } from "next/cache";
 import { prisma } from "@/lib/prisma";
 import { getSessionFromCookies } from "@/lib/auth/session";
+import { logActivity } from "@/services/activity.service";
 import {
   createLeaveSchema,
   createComplaintSchema,
@@ -69,7 +70,7 @@ export async function createLeaveRequestAction(
   const reqCount = await prisma.request.count();
   const requestCode = `LV-${201 + reqCount}`;
 
-  await prisma.request.create({
+  const createdReq = await prisma.request.create({
     data: {
       request_code: requestCode,
       user_id: session.user.id,
@@ -81,6 +82,14 @@ export async function createLeaveRequestAction(
       end_date: new Date(parsed.data.endDate),
       status: "PENDING",
     },
+  });
+
+  await logActivity(prisma, {
+    userId: session.user.id,
+    activityType: "LEAVE_REQUESTED",
+    requestId: createdReq.id,
+    description: `Applied for ${parsed.data.leaveType} leave (${parsed.data.startDate} to ${parsed.data.endDate})`,
+    reason: parsed.data.reason,
   });
 
   revalidatePath("/requests");
@@ -108,7 +117,7 @@ export async function createComplaintAction(
   const reqCount = await prisma.request.count();
   const requestCode = `CMP-${201 + reqCount}`;
 
-  await prisma.request.create({
+  const createdCmp = await prisma.request.create({
     data: {
       request_code: requestCode,
       user_id: session.user.id,
@@ -117,6 +126,14 @@ export async function createComplaintAction(
       description: parsed.data.description,
       status: "PENDING",
     },
+  });
+
+  await logActivity(prisma, {
+    userId: session.user.id,
+    activityType: "COMPLAINT_FILED",
+    requestId: createdCmp.id,
+    description: `Submitted complaint: "${parsed.data.subject}"`,
+    reason: parsed.data.description,
   });
 
   revalidatePath("/requests");
@@ -143,7 +160,7 @@ export async function createGeneralTicketAction(
   const reqCount = await prisma.request.count();
   const requestCode = `TCK-${201 + reqCount}`;
 
-  await prisma.request.create({
+  const createdTck = await prisma.request.create({
     data: {
       request_code: requestCode,
       user_id: session.user.id,
@@ -152,6 +169,14 @@ export async function createGeneralTicketAction(
       description: parsed.data.description,
       status: "PENDING",
     },
+  });
+
+  await logActivity(prisma, {
+    userId: session.user.id,
+    activityType: "TICKET_RAISED",
+    requestId: createdTck.id,
+    description: `Submitted general ticket: "${parsed.data.subject}"`,
+    reason: parsed.data.description,
   });
 
   revalidatePath("/requests");
@@ -205,6 +230,18 @@ export async function reviewRequestAction(
         new_status: newStatus,
         changed_by_id: session.user.id,
         remarks: remarks,
+      },
+    });
+
+    await tx.activityLog.create({
+      data: {
+        user_id: session.user.id,
+        activity_type: "REQUEST_REVIEWED",
+        request_id: requestId,
+        description: `${newStatus === "APPROVED" ? "Approved" : newStatus === "REJECTED" ? "Rejected" : "Resolved"} ${req.category.toLowerCase()} request ${req.request_code}: "${req.subject}"`,
+        previous_value: req.status,
+        new_value: newStatus,
+        reason: remarks,
       },
     });
   });

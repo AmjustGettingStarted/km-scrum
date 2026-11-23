@@ -4,6 +4,7 @@ import { revalidatePath } from "next/cache";
 import { prisma } from "@/lib/prisma";
 import { getSessionFromCookies } from "@/lib/auth/session";
 import { hashPassword } from "@/lib/auth/password";
+import { logActivity } from "@/services/activity.service";
 import { createUserSchema, type CreateUserInput } from "@/lib/validations/auth";
 import type { UserRole } from "@prisma/client";
 
@@ -72,7 +73,7 @@ export async function createUserAction(
 
   const passwordHash = await hashPassword(parsed.data.temporaryPassword);
 
-  await prisma.user.create({
+  const createdUser = await prisma.user.create({
     data: {
       username: parsed.data.username,
       full_name: parsed.data.fullName,
@@ -82,6 +83,13 @@ export async function createUserAction(
       must_change_password: true,
       is_active: true,
     },
+  });
+
+  await logActivity(prisma, {
+    userId: session.user.id,
+    activityType: "USER_CREATED",
+    description: `Created new team member "${parsed.data.fullName}" (@${parsed.data.username}) with role ${parsed.data.role}`,
+    newValue: parsed.data.role,
   });
 
   revalidatePath("/manager/users");
@@ -99,12 +107,20 @@ export async function resetPasswordAction(userId: string, tempPassword: string) 
 
   const passwordHash = await hashPassword(tempPassword);
 
+  const targetUser = await prisma.user.findUnique({ where: { id: userId }, select: { username: true, full_name: true } });
+
   await prisma.user.update({
     where: { id: userId },
     data: {
       password_hash: passwordHash,
       must_change_password: true,
     },
+  });
+
+  await logActivity(prisma, {
+    userId: session.user.id,
+    activityType: "PASSWORD_RESET",
+    description: `Reset temporary password for user "${targetUser?.full_name || targetUser?.username}"`,
   });
 
   // Invalidate any active sessions for the user
@@ -127,9 +143,18 @@ export async function toggleUserStatusAction(userId: string) {
   const user = await prisma.user.findUnique({ where: { id: userId } });
   if (!user) throw new Error("User not found");
 
+  const newStatus = !user.is_active;
   await prisma.user.update({
     where: { id: userId },
-    data: { is_active: !user.is_active },
+    data: { is_active: newStatus },
+  });
+
+  await logActivity(prisma, {
+    userId: session.user.id,
+    activityType: "USER_STATUS_CHANGED",
+    description: `${newStatus ? "Activated" : "Deactivated"} user account "${user.full_name}" (@${user.username})`,
+    previousValue: user.is_active ? "ACTIVE" : "DEACTIVATED",
+    newValue: newStatus ? "ACTIVE" : "DEACTIVATED",
   });
 
   if (user.is_active) {

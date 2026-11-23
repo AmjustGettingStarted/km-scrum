@@ -4,6 +4,7 @@ import { cookies, headers } from "next/headers";
 import { redirect } from "next/navigation";
 import { prisma } from "@/lib/prisma";
 import { verifyPassword, hashPassword } from "@/lib/auth/password";
+import { logActivity } from "@/services/activity.service";
 import { 
   createSession, 
   invalidateSession, 
@@ -72,6 +73,14 @@ export async function loginAction(
 
   // Create database session token
   const rawToken = await createSession(user.id, userAgent, ipAddress);
+
+  // Log successful login
+  await logActivity(prisma, {
+    userId: user.id,
+    activityType: "USER_LOGGED_IN",
+    description: `User signed in from ${ipAddress || "local network"}`,
+    ipAddress: ipAddress ?? null,
+  });
 
   // Set secure HttpOnly cookie
   const cookieStore = await cookies();
@@ -149,6 +158,12 @@ export async function changePasswordAction(
       password_hash: newHash,
       must_change_password: false,
     },
+  });
+
+  await logActivity(prisma, {
+    userId: user.id,
+    activityType: "PASSWORD_CHANGED",
+    description: "Changed personal account password",
   });
 
   // Invalidate all other active sessions for safety
