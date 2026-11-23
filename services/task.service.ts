@@ -60,7 +60,7 @@ export async function getTasksAction(filter?: TaskFilterOptions) {
       },
     },
     orderBy: [
-      { order_index: "asc" },
+      { order_index: "desc" },
       { created_at: "desc" },
     ],
   });
@@ -135,9 +135,16 @@ export async function createTaskAction(
     assignedToId = session.user.id;
   }
 
-  // Count existing tasks to generate sequential code (or timestamp fallback in development)
+  // Count existing tasks to generate sequential code
   const taskCount = await prisma.task.count();
   const taskCode = `KM-${101 + taskCount}`;
+
+  // Find max order_index so the newest task always lands at the very top
+  const maxTask = await prisma.task.findFirst({
+    orderBy: { order_index: "desc" },
+    select: { order_index: true },
+  });
+  const newOrderIndex = maxTask ? (maxTask.order_index ?? 0) + 1000.0 : 1000.0;
 
   const createdTask = await prisma.task.create({
     data: {
@@ -150,7 +157,7 @@ export async function createTaskAction(
       status: "TO_DO",
       scheduled_date: new Date(parsed.data.scheduledDate),
       due_date: parsed.data.dueDate ? new Date(parsed.data.dueDate) : null,
-      order_index: (taskCount + 1) * 1000.0,
+      order_index: newOrderIndex,
     },
     include: {
       assigned_to: { select: { full_name: true } },
