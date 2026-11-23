@@ -31,9 +31,11 @@ async function TaskBoardContent() {
           </p>
         </div>
 
-        {session?.user.role !== "DEVELOPER" && (
-          <CreateTaskModal developers={developers} />
-        )}
+        <CreateTaskModal
+          developers={developers}
+          userRole={session?.user.role}
+          currentUserId={session?.user.id}
+        />
       </div>
 
       <TaskBoardView

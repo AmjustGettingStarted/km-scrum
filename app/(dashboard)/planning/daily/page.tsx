@@ -1,4 +1,5 @@
 import { Suspense } from "react";
+import { connection } from "next/server";
 import { getDailyPlanningDataAction } from "@/services/planning.service";
 import { DailyDatePicker } from "@/components/planning/DailyDatePicker";
 import { DailyPlanningView } from "@/components/planning/DailyPlanningView";
@@ -9,6 +10,7 @@ interface DailyPlanningPageProps {
 }
 
 async function DailyPlanningContent({ datePromise }: { datePromise: Promise<{ date?: string }> }) {
+  await connection();
   const { date } = await datePromise;
   const targetDate = date || new Date().toISOString().split("T")[0];
   const data = await getDailyPlanningDataAction(targetDate);

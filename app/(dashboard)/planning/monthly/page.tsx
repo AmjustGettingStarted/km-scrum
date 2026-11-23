@@ -1,4 +1,5 @@
 import { Suspense } from "react";
+import { connection } from "next/server";
 import { getMonthlyPlanningDataAction } from "@/services/planning.service";
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -14,6 +15,7 @@ async function MonthlyCalendarContent({
 }: {
   paramsPromise: Promise<{ year?: string; month?: string }>;
 }) {
+  await connection();
   const { year: qYear, month: qMonth } = await paramsPromise;
   const now = new Date();
   const year = qYear ? parseInt(qYear, 10) : now.getFullYear();
