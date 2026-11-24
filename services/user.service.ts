@@ -80,7 +80,7 @@ export async function createUserAction(
       email: parsed.data.email || null,
       role: parsed.data.role,
       password_hash: passwordHash,
-      must_change_password: true,
+      must_change_password: false,
       is_active: true,
     },
   });
@@ -113,7 +113,7 @@ export async function resetPasswordAction(userId: string, tempPassword: string) 
     where: { id: userId },
     data: {
       password_hash: passwordHash,
-      must_change_password: true,
+      must_change_password: false,
     },
   });
 
