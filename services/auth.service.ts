@@ -92,10 +92,6 @@ export async function loginAction(
     maxAge: 7 * 24 * 60 * 60, // 7 days
   });
 
-  if (user.must_change_password) {
-    redirect("/change-password");
-  }
-
   redirect("/dashboard");
 }
 

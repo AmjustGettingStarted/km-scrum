@@ -58,13 +58,6 @@ async function UserTableList() {
                 </span>
               )}
             </td>
-            <td className="py-3.5 px-4 text-xs text-steel">
-              {u.must_change_password ? (
-                <span className="text-amber-700 font-medium">Pending 1st Login</span>
-              ) : (
-                "Active"
-              )}
-            </td>
             <td className="py-3.5 px-4 text-xs text-steel">{formatDate(u.created_at)}</td>
             <td className="py-3.5 px-4 text-right">
               <UserActionsDropdown user={u} />
@@ -79,7 +72,7 @@ async function UserTableList() {
 function TableSkeleton() {
   return (
     <tr>
-      <td colSpan={7} className="py-8 text-center text-sm text-steel">
+      <td colSpan={6} className="py-8 text-center text-sm text-steel">
         Loading user directory...
       </td>
     </tr>
@@ -113,7 +106,6 @@ export default function UsersManagementPage() {
                 <th className="py-3 px-4">Username</th>
                 <th className="py-3 px-4">Role</th>
                 <th className="py-3 px-4">Status</th>
-                <th className="py-3 px-4">Password State</th>
                 <th className="py-3 px-4">Created</th>
                 <th className="py-3 px-4 text-right">Actions</th>
               </tr>

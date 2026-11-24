@@ -19,7 +19,7 @@ async function main() {
     where: { username: adminUsername },
     update: {
       password_hash: passwordHash,
-      must_change_password: true,
+      must_change_password: false,
       is_active: true,
     },
     create: {
@@ -29,9 +29,16 @@ async function main() {
       email: "manager@internal.local",
       role: "MANAGER",
       is_active: true,
-      must_change_password: true,
+      must_change_password: false,
     },
   });
+
+  const updatedAll = await prisma.user.updateMany({
+    data: {
+      must_change_password: false,
+    },
+  });
+  console.log(`✅ Set must_change_password = false for all ${updatedAll.count} users.`);
 
   console.log(`✅ Default Manager account ready:`);
   console.log(`   Username: ${admin.username}`);
